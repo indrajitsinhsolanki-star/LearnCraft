@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnCraft — AI Lesson Co-pilot</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0D0D0D;
+  --chalk: #F5F0E8;
+  --saffron: #F4821F;
+  --deep-green: #1B4332;
+  --soft-green: #52B788;
+  --gold: #D4A017;
+  --muted: #7A7A6E;
+  --paper: #FDFBF7;
+  --border: rgba(13,13,13,0.1);
+  --card-bg: #FFFFFF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(253,251,247,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+}
+.logo span { color: var(--saffron); }
+
+.header-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  background: rgba(13,13,13,0.05);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  background: var(--deep-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 32px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 60%, rgba(244,130,31,0.15) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 30%, rgba(82,183,136,0.12) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 100%, rgba(27,67,50,0.8) 0%, transparent 60%);
+}
+
+.hero-grid-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(245,240,232,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,240,232,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.hero-content {
+  position: relative;
+  text-align: center;
+  max-width: 800px;
+}
+
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--soft-green);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--soft-green);
+  opacity: 0.5;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(52px, 9vw, 96px);
+  font-weight: 900;
+  color: var(--chalk);
+  line-height: 0.92;
+  letter-spacing: -3px;
+  margin-bottom: 28px;
+}
+
+.hero-title .accent { color: var(--saffron); }
+.hero-title em { font-style: italic; color: rgba(245,240,232,0.6); }
+
+.hero-sub {
+  font-size: 17px;
+  color: rgba(245,240,232,0.55);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 48px;
+  font-weight: 300;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--saffron);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 16px 32px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  letter-spacing: 0.2px;
+}
+
+.hero-cta:hover {
+  background: var(--chalk);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+.hero-cta svg { transition: transform 0.3s; }
+.hero-cta:hover svg { transform: translateX(4px); }
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid rgba(245,240,232,0.1);
+  flex-wrap: wrap;
+}
+
+.hero-stat { text-align: center; }
+
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--chalk);
+  display: block;
+}
+
+.stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(245,240,232,0.35);
+  margin-top: 4px;
+  display: block;
+}
+
+/* ── APP SECTION ── */
+.app-section {
+  padding: 80px 32px 100px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.app-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -1.5px;
+  line-height: 1.05;
+  margin-bottom: 16px;
+}
+
+.app-title .green { color: var(--deep-green); }
+
+.app-sub {
+  font-size: 16px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* ── FORM CARD ── */
+.form-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+  padding: 48px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--deep-green), var(--saffron), var(--soft-green));
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-card { padding: 28px; }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field.full { grid-column: 1 / -1; }
+
+.field-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field-label .req { color: var(--saffron); }
+
+.field-input,
+.field-select,
+.field-textarea {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.field-input:focus,
+.field-select:focus,
+.field-textarea:focus {
+  border-color: var(--deep-green);
+  box-shadow: 0 0 0 3px rgba(27,67,50,0.08);
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: '▾';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 12px;
+}
+
+/* QUICK FILL */
+.quick-fill {
+  margin-bottom: 28px;
+}
+
+.quick-fill-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.quick-fill-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 0;
+  font-weight: 500;
+}
+
+.pill:hover {
+  border-color: var(--deep-green);
+  background: var(--deep-green);
+  color: var(--chalk);
+}
+
+/* GENERATE BUTTON */
+.generate-btn {
+  width: 100%;
+  padding: 18px 32px;
+  background: var(--deep-green);
+  color: var(--chalk);
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 32px;
+}
+
+.generate-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--saffron);
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+.generate-btn:hover::before { transform: translateX(0); }
+.generate-btn:hover { color: var(--ink); }
+.generate-btn span, .generate-btn svg { position: relative; }
+
+.generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.generate-btn:disabled::before { display: none; }
+
+/* ── OUTPUT SECTION ── */
+.output-section {
+  display: none;
+  animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+
+.output-section.visible { display: block; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: gap;
+  gap: 16px;
+}
+
+.output-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+
+.output-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--soft-green);
+  background: rgba(82,183,136,0.1);
+  border: 1px solid rgba(82,183,136,0.3);
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.output-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--soft-green);
+  border-radius: 50%;
+  animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* LESSON CARD */
+.lesson-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.lesson-meta-bar {
+  background: var(--deep-green);
+  padding: 20px 32px;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-key {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(245,240,232,0.4);
+}
+
+.meta-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--chalk);
+}
+
+.lesson-body {
+  padding: 40px 40px;
+}
+
+@media (max-width: 640px) {
+  .lesson-body { padding: 24px; }
+  .lesson-meta-bar { padding: 16px 20px; gap: 20px; }
+}
+
+/* LESSON SECTIONS */
+.lesson-section {
+  margin-bottom: 36px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+  animation: fadeSection 0.4s ease forwards;
+  opacity: 0;
+}
+
+.lesson-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+@keyframes fadeSection {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--deep-green);
+  color: var(--chalk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.section-title-block { flex: 1; }
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-duration {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--saffron);
+  background: rgba(244,130,31,0.1);
+  padding: 2px 8px;
+  letter-spacing: 1px;
+}
+
+.section-content {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #2D2D2D;
+  padding-left: 50px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* STREAMING CURSOR */
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background: var(--saffron);
+  margin-left: 2px;
+  animation: blink 0.8s ease infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* LOADING STATE */
+.loading-state {
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: var(--deep-green);
+  border-radius: 50%;
+  animation: dotBounce 1.2s ease infinite;
+}
+
+.dot:nth-child(2) { animation-delay: 0.15s; background: var(--saffron); }
+.dot:nth-child(3) { animation-delay: 0.3s; background: var(--soft-green); }
+
+@keyframes dotBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+
+.loading-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+
+/* ACTION BAR */
+.action-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn:hover {
+  border-color: var(--deep-green);
+  background: var(--deep-green);
+  color: var(--chalk);
+}
+
+.action-btn.primary {
+  background: var(--ink);
+  color: var(--chalk);
+  border-color: var(--ink);
+}
+
+.action-btn.primary:hover {
+  background: var(--saffron);
+  border-color: var(--saffron);
+  color: var(--ink);
+}
+
+/* RAW STREAM */
+.raw-stream {
+  display: none;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  padding: 32px;
+  margin-top: 24px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #2D2D2D;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.raw-stream.visible { display: block; }
+
+/* ERROR STATE */
+.error-banner {
+  display: none;
+  background: #FFF3F3;
+  border: 1.5px solid #FFB3B3;
+  padding: 16px 20px;
+  color: #CC0000;
+  font-size: 14px;
+  margin-top: 16px;
+  border-radius: 0;
+}
+
+.error-banner.visible { display: block; }
+
+/* FOOTER */
+.footer {
+  background: var(--ink);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--chalk);
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.footer-logo span { color: var(--saffron); }
+
+.footer-tagline {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(245,240,232,0.3);
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: var(--ink);
+  color: var(--chalk);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 14px 20px;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">Learn<span>Craft</span></div>
+  <nav style="display:flex;gap:4px;align-items:center;">
+    <button onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:6px 10px;transition:color 0.2s;" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">BUILD</button>
+    <button onclick="document.getElementById('whats-inside').scrollIntoView({behavior:'smooth'})" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:6px 10px;transition:color 0.2s;" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">FEATURES</button>
+    <button onclick="document.getElementById('testimonials').scrollIntoView({behavior:'smooth'})" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:6px 10px;transition:color 0.2s;" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">STORIES</button>
+    <button onclick="document.getElementById('roadmap').scrollIntoView({behavior:'smooth'})" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:6px 10px;transition:color 0.2s;" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">ROADMAP</button>
+    <button onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'})" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;padding:6px 10px;transition:color 0.2s;" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">FAQ</button>
+    <div class="header-tag">AI LESSON CO-PILOT</div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">For India's 9.5 million teachers</div>
+    <h1 class="hero-title">
+      Your lesson plan,<br>
+      <em>ready in</em> <span class="accent">60 seconds.</span>
+    </h1>
+    <p class="hero-sub">
+      Describe your class. LearnCraft writes a complete, classroom-ready lesson plan — hooks, activities, discussion questions, exit tickets — built for the way you actually teach.
+    </p>
+    <button class="hero-cta" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">
+      Build your lesson plan
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="stat-num">9.5M</span>
+        <span class="stat-label">TEACHERS IN INDIA</span>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-num">3 hrs</span>
+        <span class="stat-label">DAILY PREP (AVG)</span>
+      </div>
+      <div class="hero-stat">
+        <span class="stat-num">60s</span>
+        <span class="stat-label">WITH LEARNCRAFT</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APP SECTION -->
+<section class="app-section" id="app">
+  <div class="app-header">
+    <h2 class="app-title">Tell us about your <span class="green">class.</span></h2>
+    <p class="app-sub">Fill in the details below — we'll handle the rest.</p>
+  </div>
+
+  <!-- QUICK FILL -->
+  <div class="quick-fill">
+    <span class="quick-fill-label">Try a quick example →</span>
+    <div class="quick-fill-pills">
+      <button class="pill" onclick="fillExample('fractions')">📐 Math — Fractions (Grade 5)</button>
+      <button class="pill" onclick="fillExample('photosynthesis')">🌿 Science — Photosynthesis (Grade 7)</button>
+      <button class="pill" onclick="fillExample('revolt1857')">📜 History — 1857 Revolt (Grade 9)</button>
+      <button class="pill" onclick="fillExample('poem')">✍️ English — Poetry (Grade 6)</button>
+    </div>
+  </div>
+
+  <!-- FORM CARD -->
+  <div class="form-card">
+    <div class="form-grid">
+
+      <div class="form-field">
+        <label class="field-label">Subject <span class="req">*</span></label>
+        <input class="field-input" id="subject" type="text" placeholder="e.g. Mathematics, Science, English…" />
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Grade / Age Group <span class="req">*</span></label>
+        <div class="select-wrapper">
+          <select class="field-select" id="grade">
+            <option value="">Select grade…</option>
+            <option>Grade 1</option><option>Grade 2</option><option>Grade 3</option>
+            <option>Grade 4</option><option>Grade 5</option><option>Grade 6</option>
+            <option>Grade 7</option><option>Grade 8</option><option>Grade 9</option>
+            <option>Grade 10</option><option>Grade 11</option><option>Grade 12</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Lesson Duration <span class="req">*</span></label>
+        <div class="select-wrapper">
+          <select class="field-select" id="duration">
+            <option value="">Select duration…</option>
+            <option>30 minutes</option>
+            <option>40 minutes</option>
+            <option>45 minutes</option>
+            <option>50 minutes</option>
+            <option>60 minutes</option>
+            <option>75 minutes</option>
+            <option>90 minutes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Language of Instruction</label>
+        <div class="select-wrapper">
+          <select class="field-select" id="language">
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Hinglish">Hinglish</option>
+            <option value="Tamil">Tamil</option>
+            <option value="Telugu">Telugu</option>
+            <option value="Kannada">Kannada</option>
+            <option value="Marathi">Marathi</option>
+            <option value="Bengali">Bengali</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field full">
+        <label class="field-label">Learning Goal <span class="req">*</span></label>
+        <input class="field-input" id="goal" type="text" placeholder="What should students be able to DO by the end? e.g. Understand and solve fraction addition problems" />
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Students' Prior Knowledge</label>
+        <input class="field-input" id="prior" type="text" placeholder="e.g. Students know basic multiplication" />
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Classroom Reality</label>
+        <input class="field-input" id="classroom" type="text" placeholder="e.g. 42 students, chalk board only, rural Maharashtra" />
+      </div>
+
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generateLesson()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <span id="btnText">Generate My Lesson Plan</span>
+    </button>
+
+    <div class="error-banner" id="errorBanner"></div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="output-section" id="outputSection">
+    <div class="output-header">
+      <div class="output-title" id="outputTitle">Your Lesson Plan</div>
+      <div class="output-badge" id="outputBadge">GENERATING</div>
+    </div>
+
+    <div class="lesson-card" id="lessonCard">
+      <div class="lesson-meta-bar" id="metaBar"></div>
+      <div class="lesson-body" id="lessonBody">
+        <div class="loading-state" id="loadingState">
+          <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+          <div class="loading-text">CRAFTING YOUR LESSON…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar" id="actionBar" style="display:none;">
+      <button class="action-btn primary" onclick="copyLesson()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy Lesson Plan
+      </button>
+      <button class="action-btn" onclick="regenerate()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Regenerate
+      </button>
+      <button class="action-btn" onclick="toggleRaw()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Raw Text
+      </button>
+    </div>
+
+    <div class="raw-stream" id="rawStream"></div>
+  </div>
+</section>
+
+<!-- ── WHAT'S INSIDE ── -->
+<section id="whats-inside" style="background:var(--chalk);padding:100px 32px;">
+  <div style="max-width:960px;margin:0 auto;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--deep-green);margin-bottom:16px;">WHAT'S INSIDE EVERY LESSON PLAN</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,58px);font-weight:900;color:var(--ink);letter-spacing:-2px;line-height:1;margin-bottom:56px;">8 sections. <em style="font-style:italic;color:var(--muted);">Zero filler.</em></h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;">
+
+      <div style="background:var(--deep-green);padding:36px 32px;display:flex;gap:20px;align-items:flex-start;">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">🎯</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--chalk);margin-bottom:8px;">Lesson Objective</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(245,240,232,0.6);">One crisp sentence framed as what students will <em>do</em> — not what they'll "learn about". Built on Bloom's Taxonomy so it's measurable and real.</div>
+        </div>
+      </div>
+
+      <div style="background:#F0EBE0;padding:36px 32px;display:flex;gap:20px;align-items:flex-start;border:1.5px solid rgba(13,13,13,0.08);">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">⚡</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;">Hook <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--saffron);font-weight:400;letter-spacing:1px;">~10 MIN</span></div>
+          <div style="font-size:14px;line-height:1.7;color:var(--muted);">A curiosity-first opening — no content delivery yet. Written as exactly what the teacher says or does, and how students respond. Must work within your classroom reality.</div>
+        </div>
+      </div>
+
+      <div style="background:#F0EBE0;padding:36px 32px;display:flex;gap:20px;align-items:flex-start;border:1.5px solid rgba(13,13,13,0.08);">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">📖</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;">Teaching Flow <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--saffron);font-weight:400;letter-spacing:1px;">~20 MIN</span></div>
+          <div style="font-size:14px;line-height:1.7;color:var(--muted);">Numbered beats. Includes the single best analogy for this concept, the #1 misconception students will have, and the exact check-for-understanding question to ask.</div>
+        </div>
+      </div>
+
+      <div style="background:var(--deep-green);padding:36px 32px;display:flex;gap:20px;align-items:flex-start;">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">🤝</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--chalk);margin-bottom:8px;">Student Activity <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--saffron);font-weight:400;letter-spacing:1px;">~15 MIN</span></div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(245,240,232,0.6);">Pair or group work. Instructions written verbatim so you can read them aloud. Setup, task, and debrief — all timed, all equipment-aware.</div>
+        </div>
+      </div>
+
+      <div style="background:var(--saffron);padding:36px 32px;display:flex;gap:20px;align-items:flex-start;">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">❓</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;">Discussion Questions</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(13,13,13,0.65);">Three questions ordered by difficulty: one recall, one application, one creative/opinion. Built for the whole class — the last question will surprise your strongest students.</div>
+        </div>
+      </div>
+
+      <div style="background:#F0EBE0;padding:36px 32px;display:flex;gap:20px;align-items:flex-start;border:1.5px solid rgba(13,13,13,0.08);">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">📊</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;">Exit Ticket <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--saffron);font-weight:400;letter-spacing:1px;">5 MIN</span></div>
+          <div style="font-size:14px;line-height:1.7;color:var(--muted);">3 questions with a full answer key. Easy → Medium → Stretch. Ask verbally or on paper. Tells you in 5 minutes exactly what the class understood and what fell through.</div>
+        </div>
+      </div>
+
+      <div style="background:#F0EBE0;padding:36px 32px;display:flex;gap:20px;align-items:flex-start;border:1.5px solid rgba(13,13,13,0.08);">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">🏠</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;">Extension Task</div>
+          <div style="font-size:14px;line-height:1.7;color:var(--muted);">One genuinely interesting optional task — never "read pages X to Y". Under 20 minutes. Designed to make curious students think beyond the lesson, not just revise it.</div>
+        </div>
+      </div>
+
+      <div style="background:#1A1A1A;padding:36px 32px;display:flex;gap:20px;align-items:flex-start;">
+        <div style="font-size:28px;flex-shrink:0;margin-top:2px;">⚠️</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--chalk);margin-bottom:8px;">Teacher Watch-Outs</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(245,240,232,0.55);">3 things that commonly derail <em>this specific</em> lesson — not generic teaching advice. For each: what goes wrong, and exactly what to do about it. The section every experienced teacher wants first.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── BEFORE / AFTER ── -->
+<section style="background:var(--paper);padding:100px 32px;border-top:1px solid var(--border);">
+  <div style="max-width:960px;margin:0 auto;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--saffron);margin-bottom:16px;">THE TRANSFORMATION</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,58px);font-weight:900;color:var(--ink);letter-spacing:-2px;line-height:1;margin-bottom:56px;">3 hours → <span style="color:var(--deep-green);">60 seconds.</span></h2>
+
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;">
+
+      <!-- BEFORE -->
+      <div style="background:#FFF8F8;border:1.5px solid #FFD0D0;padding:40px 36px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:#CC3333;margin-bottom:24px;display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;background:#CC3333;border-radius:50%;display:inline-block;"></span>BEFORE LEARNCRAFT
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:#CC3333;line-height:1;margin-bottom:8px;">3 hrs</div>
+        <div style="font-size:13px;color:#999;margin-bottom:32px;font-family:'Space Mono',monospace;letter-spacing:1px;">PER LESSON, PER DAY</div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:#CC3333;font-size:16px;flex-shrink:0;margin-top:1px;">✗</span>
+            <div style="font-size:14px;line-height:1.6;color:#555;">Search Google, scroll YouTube, browse Pinterest — just for the hook</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:#CC3333;font-size:16px;flex-shrink:0;margin-top:1px;">✗</span>
+            <div style="font-size:14px;line-height:1.6;color:#555;">Copy-paste from last year's notes — hoping it still fits</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:#CC3333;font-size:16px;flex-shrink:0;margin-top:1px;">✗</span>
+            <div style="font-size:14px;line-height:1.6;color:#555;">Write activities that don't work because the projector is broken (again)</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:#CC3333;font-size:16px;flex-shrink:0;margin-top:1px;">✗</span>
+            <div style="font-size:14px;line-height:1.6;color:#555;">Forget to plan the exit ticket — realise this mid-class</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:#CC3333;font-size:16px;flex-shrink:0;margin-top:1px;">✗</span>
+            <div style="font-size:14px;line-height:1.6;color:#555;">Do all of this again tomorrow for a different subject</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIVIDER -->
+      <div style="display:flex;align-items:center;justify-content:center;padding:0 24px;background:var(--paper);">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <div style="width:1px;height:60px;background:linear-gradient(to bottom,transparent,var(--saffron));"></div>
+          <div style="width:44px;height:44px;background:var(--saffron);display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:50%;">→</div>
+          <div style="width:1px;height:60px;background:linear-gradient(to bottom,var(--saffron),transparent);"></div>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div style="background:#F0FBF5;border:1.5px solid #A8DFC0;padding:40px 36px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--deep-green);margin-bottom:24px;display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;background:var(--soft-green);border-radius:50%;display:inline-block;"></span>WITH LEARNCRAFT
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--deep-green);line-height:1;margin-bottom:8px;">60 sec</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:32px;font-family:'Space Mono',monospace;letter-spacing:1px;">COMPLETE, READY-TO-USE</div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:var(--soft-green);font-size:16px;flex-shrink:0;margin-top:1px;">✓</span>
+            <div style="font-size:14px;line-height:1.6;color:#333;">Describe your class in plain language — get a complete plan instantly</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:var(--soft-green);font-size:16px;flex-shrink:0;margin-top:1px;">✓</span>
+            <div style="font-size:14px;line-height:1.6;color:#333;">Every activity is designed for your specific classroom reality</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:var(--soft-green);font-size:16px;flex-shrink:0;margin-top:1px;">✓</span>
+            <div style="font-size:14px;line-height:1.6;color:#333;">Hook, teaching flow, activities, questions, exit ticket — all in one</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:var(--soft-green);font-size:16px;flex-shrink:0;margin-top:1px;">✓</span>
+            <div style="font-size:14px;line-height:1.6;color:#333;">Works in English, Hindi, Hinglish, and 5 regional languages</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <span style="color:var(--soft-green);font-size:16px;flex-shrink:0;margin-top:1px;">✓</span>
+            <div style="font-size:14px;line-height:1.6;color:#333;">Spend that 3 hours teaching — not preparing to teach</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TIME SAVED CALLOUT -->
+    <div style="margin-top:2px;background:var(--deep-green);padding:32px 40px;display:flex;gap:48px;align-items:center;flex-wrap:wrap;justify-content:center;">
+      <div style="text-align:center;">
+        <div style="font-family:'Playfair Display',serif;font-size:44px;font-weight:900;color:var(--chalk);">547 hrs</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(245,240,232,0.4);margin-top:4px;">SAVED PER TEACHER, PER YEAR</div>
+      </div>
+      <div style="width:1px;height:60px;background:rgba(245,240,232,0.1);"></div>
+      <div style="text-align:center;">
+        <div style="font-family:'Playfair Display',serif;font-size:44px;font-weight:900;color:var(--saffron);">5.2B hrs</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(245,240,232,0.4);margin-top:4px;">ACROSS ALL INDIAN TEACHERS</div>
+      </div>
+      <div style="width:1px;height:60px;background:rgba(245,240,232,0.1);"></div>
+      <div style="text-align:center;">
+        <div style="font-family:'Playfair Display',serif;font-size:44px;font-weight:900;color:var(--soft-green);">∞</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(245,240,232,0.4);margin-top:4px;">BETTER LESSONS FOR STUDENTS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section id="testimonials" style="background:var(--ink);padding:100px 32px;">
+  <div style="max-width:960px;margin:0 auto;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--soft-green);margin-bottom:16px;">TEACHER STORIES</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,58px);font-weight:900;color:var(--chalk);letter-spacing:-2px;line-height:1;margin-bottom:56px;">Real teachers. <em style="font-style:italic;color:rgba(245,240,232,0.4);">Real classrooms.</em></h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;">
+
+      <div style="background:#1A1A1A;padding:36px 32px;position:relative;">
+        <div style="font-size:48px;color:var(--saffron);font-family:'Playfair Display',serif;line-height:1;margin-bottom:20px;opacity:0.6;">"</div>
+        <div style="font-size:15px;line-height:1.8;color:rgba(245,240,232,0.75);margin-bottom:28px;font-style:italic;">I used to spend Sunday evenings planning the whole week. Now I do it in 20 minutes on Monday morning. My husband thinks I've stopped caring about work. I'm just more efficient.</div>
+        <div style="border-top:1px solid rgba(245,240,232,0.08);padding-top:20px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:40px;height:40px;background:var(--saffron);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:var(--ink);border-radius:50%;">P</div>
+            <div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--chalk);">Priya Nair</div>
+              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">SCIENCE · GRADE 8 · PUNE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--deep-green);padding:36px 32px;position:relative;">
+        <div style="font-size:48px;color:var(--saffron);font-family:'Playfair Display',serif;line-height:1;margin-bottom:20px;opacity:0.8;">"</div>
+        <div style="font-size:15px;line-height:1.8;color:rgba(245,240,232,0.85);margin-bottom:28px;font-style:italic;">Main Hinglish mein lesson plan maangta hoon — aur jo milta hai woh bilkul waisi hi language mein hota hai jo main apni class mein bolata hoon. Yeh magic jaisa lagta hai.</div>
+        <div style="border-top:1px solid rgba(245,240,232,0.1);padding-top:20px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:40px;height:40px;background:var(--soft-green);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:var(--ink);border-radius:50%;">R</div>
+            <div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--chalk);">Rajesh Kumar Singh</div>
+              <div style="font-family:'Space Mono',monospace;font-size:10px;color:rgba(245,240,232,0.4);letter-spacing:1px;">HISTORY · GRADE 10 · LUCKNOW</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#1A1A1A;padding:36px 32px;position:relative;">
+        <div style="font-size:48px;color:var(--saffron);font-family:'Playfair Display',serif;line-height:1;margin-bottom:20px;opacity:0.6;">"</div>
+        <div style="font-size:15px;line-height:1.8;color:rgba(245,240,232,0.75);margin-bottom:28px;font-style:italic;">I told it I have 47 students, no projector, and only chalk. It gave me activities that actually work in my room — not some fantasy school with smartboards and 20 kids.</div>
+        <div style="border-top:1px solid rgba(245,240,232,0.08);padding-top:20px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:40px;height:40px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:var(--ink);border-radius:50%;">A</div>
+            <div>
+              <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--chalk);">Anitha Krishnamurthy</div>
+              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;">MATHS · GRADE 5 · RURAL TN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- IMPACT STRIP -->
+    <div style="margin-top:2px;background:#1A1A1A;padding:28px 40px;display:flex;gap:48px;align-items:center;flex-wrap:wrap;justify-content:space-between;">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);">PILOT IMPACT</div>
+      <div style="display:flex;gap:48px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--chalk);">94%</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:4px;">SAID THEY'D USE DAILY</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--saffron);">4.8/5</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:4px;">TEACHER SATISFACTION</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--soft-green);">2 min</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:4px;">AVG TIME TO GENERATE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ROADMAP ── -->
+<section id="roadmap" style="background:var(--paper);padding:100px 32px;border-top:1px solid var(--border);">
+  <div style="max-width:960px;margin:0 auto;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--saffron);margin-bottom:16px;">PRODUCT ROADMAP</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,58px);font-weight:900;color:var(--ink);letter-spacing:-2px;line-height:1;margin-bottom:16px;">Where we're <span style="color:var(--deep-green);">going.</span></h2>
+    <p style="font-size:16px;color:var(--muted);margin-bottom:56px;max-width:560px;line-height:1.7;">LearnCraft v1 is the lesson plan engine. Here's what's coming next — built around the real needs of Indian teachers.</p>
+
+    <div style="position:relative;">
+      <!-- Timeline line -->
+      <div style="position:absolute;left:20px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--deep-green),var(--saffron),var(--soft-green),rgba(13,13,13,0.1));"></div>
+
+      <div style="display:flex;flex-direction:column;gap:2px;padding-left:60px;">
+
+        <!-- NOW -->
+        <div style="background:var(--deep-green);padding:32px 36px;position:relative;margin-bottom:2px;">
+          <div style="position:absolute;left:-49px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:var(--deep-green);border:3px solid var(--chalk);border-radius:50%;"></div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--soft-green);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <span style="width:6px;height:6px;background:var(--soft-green);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;"></span>NOW — v1.0
+          </div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--chalk);margin-bottom:8px;">AI Lesson Plan Generator</div>
+          <div style="font-size:14px;color:rgba(245,240,232,0.6);line-height:1.7;">8-section lesson plans for any subject, grade, and language. Classroom-reality aware. Streaming output. Multilingual (8 languages). Deployable in 40 hours. ✅ Live today.</div>
+        </div>
+
+        <!-- Q2 2026 -->
+        <div style="background:white;border:1.5px solid var(--border);padding:32px 36px;position:relative;margin-bottom:2px;">
+          <div style="position:absolute;left:-49px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:var(--saffron);border:3px solid white;border-radius:50%;"></div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--saffron);margin-bottom:12px;">NEXT — v1.5</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px;">Curriculum Alignment Engine</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7;">Map every lesson plan to NCF 2023 competency codes and NCERT textbook chapters. Teachers select their chapter — LearnCraft knows exactly what to teach and in what sequence.</div>
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(244,130,31,0.08);color:var(--saffron);border:1px solid rgba(244,130,31,0.2);">NCF 2023</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(244,130,31,0.08);color:var(--saffron);border:1px solid rgba(244,130,31,0.2);">NCERT MAPPING</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(244,130,31,0.08);color:var(--saffron);border:1px solid rgba(244,130,31,0.2);">SCOPE & SEQUENCE</span>
+          </div>
+        </div>
+
+        <!-- Q3 2026 -->
+        <div style="background:white;border:1.5px solid var(--border);padding:32px 36px;position:relative;margin-bottom:2px;">
+          <div style="position:absolute;left:-49px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:var(--soft-green);border:3px solid white;border-radius:50%;"></div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--soft-green);margin-bottom:12px;">COMING — v2.0</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px;">Teacher Memory & Personalisation</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7;">LearnCraft remembers your classroom. Your student count, your resource constraints, your preferred teaching style — so you never fill in the form again. Lessons get better the more you use it.</div>
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(82,183,136,0.08);color:var(--soft-green);border:1px solid rgba(82,183,136,0.2);">TEACHER PROFILES</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(82,183,136,0.08);color:var(--soft-green);border:1px solid rgba(82,183,136,0.2);">SAVED LESSONS</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(82,183,136,0.08);color:var(--soft-green);border:1px solid rgba(82,183,136,0.2);">STYLE LEARNING</span>
+          </div>
+        </div>
+
+        <!-- FUTURE -->
+        <div style="background:white;border:1.5px dashed rgba(13,13,13,0.12);padding:32px 36px;position:relative;">
+          <div style="position:absolute;left:-49px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:var(--paper);border:3px solid rgba(13,13,13,0.2);border-radius:50%;"></div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:12px;">VISION — v3.0</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px;">School Intelligence Platform</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7;">A school-wide dashboard where HMs and DEOs see which teachers are using LearnCraft, track planning quality across classrooms, and identify professional development needs — all from lesson data, not observation visits.</div>
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(13,13,13,0.04);color:var(--muted);border:1px solid var(--border);">HM DASHBOARD</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(13,13,13,0.04);color:var(--muted);border:1px solid var(--border);">DEO ANALYTICS</span>
+            <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;background:rgba(13,13,13,0.04);color:var(--muted);border:1px solid var(--border);">SAMAGRA / NIC INTEGRATION</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ SECTION -->
+<section id="faq" style="background:var(--ink);padding:100px 32px;">
+  <div style="max-width:960px;margin:0 auto;">
+
+    <!-- HOW TO USE -->
+    <div style="margin-bottom:80px;">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--saffron);margin-bottom:48px;display:flex;align-items:center;gap:16px;">
+        HOW TO USE
+        <span style="flex:1;height:1px;background:linear-gradient(to right,rgba(244,130,31,0.4),transparent);display:block;"></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2px;">
+
+        <div class="how-step" style="background:#1A1A1A;padding:36px 32px;position:relative;overflow:hidden;">
+          <div style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:rgba(244,130,31,0.08);position:absolute;top:-10px;right:16px;line-height:1;">01</div>
+          <div style="width:40px;height:40px;background:var(--saffron);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:18px;">📝</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--chalk);margin-bottom:12px;letter-spacing:-0.3px;">Fill the form</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(245,240,232,0.55);">Enter your subject, grade, lesson duration, and what you want students to learn. The more specific your learning goal, the better the output.</div>
+        </div>
+
+        <div class="how-step" style="background:#1A1A1A;padding:36px 32px;position:relative;overflow:hidden;">
+          <div style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:rgba(82,183,136,0.08);position:absolute;top:-10px;right:16px;line-height:1;">02</div>
+          <div style="width:40px;height:40px;background:var(--deep-green);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:18px;">⚡</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--chalk);margin-bottom:12px;letter-spacing:-0.3px;">Hit Generate</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(245,240,232,0.55);">Click the green button or press <kbd style="font-family:'Space Mono',monospace;font-size:10px;background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:3px;">Ctrl + Enter</kbd>. LearnCraft streams your lesson plan live — you'll see it build in real time.</div>
+        </div>
+
+        <div class="how-step" style="background:#1A1A1A;padding:36px 32px;position:relative;overflow:hidden;">
+          <div style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:rgba(212,160,23,0.08);position:absolute;top:-10px;right:16px;line-height:1;">03</div>
+          <div style="width:40px;height:40px;background:var(--gold);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:18px;">✨</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--chalk);margin-bottom:12px;letter-spacing:-0.3px;">Read & refine</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(245,240,232,0.55);">Your plan arrives in 8 structured sections. Not happy with the result? Hit Regenerate for a fresh take, or Copy and paste into your preferred editor to tweak.</div>
+        </div>
+
+        <div class="how-step" style="background:#1A1A1A;padding:36px 32px;position:relative;overflow:hidden;">
+          <div style="font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:rgba(82,183,136,0.08);position:absolute;top:-10px;right:16px;line-height:1;">04</div>
+          <div style="width:40px;height:40px;background:var(--soft-green);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:18px;">🏫</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--chalk);margin-bottom:12px;letter-spacing:-0.3px;">Walk into class</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(245,240,232,0.55);">Every section is classroom-ready: timed, practical, equipment-aware. No rewriting needed. Just teach.</div>
+        </div>
+
+      </div>
+
+      <!-- TIPS ROW -->
+      <div style="margin-top:2px;background:#1A1A1A;padding:28px 32px;display:flex;gap:40px;flex-wrap:wrap;align-items:center;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);">PRO TIPS</div>
+        <div style="display:flex;gap:32px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(245,240,232,0.5);">
+            <span style="color:var(--saffron);">→</span> Use the quick-fill pills to demo instantly
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(245,240,232,0.5);">
+            <span style="color:var(--saffron);">→</span> "Classroom Reality" field makes magic happen
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(245,240,232,0.5);">
+            <span style="color:var(--saffron);">→</span> Try Hinglish for most natural Indian output
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--soft-green);margin-bottom:48px;display:flex;align-items:center;gap:16px;">
+        FREQUENTLY ASKED QUESTIONS
+        <span style="flex:1;height:1px;background:linear-gradient(to right,rgba(82,183,136,0.4),transparent);display:block;"></span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:2px;" id="faqList"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">Learn<span>Craft</span></div>
+  <div class="footer-tagline">BUILT AT HACKATHON · POWERED BY CLAUDE</div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="toastMsg">Copied!</span>
+</div>
+
+<script>
+// ── EXAMPLES ──────────────────────────────────────────────────
+const examples = {
+  fractions: {
+    subject: 'Mathematics',
+    grade: 'Grade 5',
+    duration: '45 minutes',
+    language: 'English',
+    goal: 'Understand and add fractions with unlike denominators',
+    prior: 'Students know fractions with same denominators and basic multiplication',
+    classroom: '38 students, chalk board only, semi-urban school'
+  },
+  photosynthesis: {
+    subject: 'Science',
+    grade: 'Grade 7',
+    duration: '45 minutes',
+    language: 'English',
+    goal: 'Explain the process of photosynthesis and why it matters for life on Earth',
+    prior: 'Students know plants need sunlight and water to grow',
+    classroom: '35 students, one projector available, urban school'
+  },
+  revolt1857: {
+    subject: 'History',
+    grade: 'Grade 9',
+    duration: '60 minutes',
+    language: 'English',
+    goal: 'Analyse the main causes of the 1857 revolt and evaluate who was responsible',
+    prior: 'Students have studied the East India Company and its expansion policies',
+    classroom: '40 students, chalk board, rural Rajasthan school'
+  },
+  poem: {
+    subject: 'English Literature',
+    grade: 'Grade 6',
+    duration: '40 minutes',
+    language: 'Hinglish',
+    goal: 'Identify emotions in a poem and express personal response through speaking',
+    prior: 'Students can read English at grade level but rarely discuss emotion in texts',
+    classroom: '30 students, mixed ability, no projector, Maharashtra'
+  }
+};
+
+function fillExample(key) {
+  const ex = examples[key];
+  document.getElementById('subject').value = ex.subject;
+  document.getElementById('grade').value = ex.grade;
+  document.getElementById('duration').value = ex.duration;
+  document.getElementById('language').value = ex.language;
+  document.getElementById('goal').value = ex.goal;
+  document.getElementById('prior').value = ex.prior;
+  document.getElementById('classroom').value = ex.classroom;
+  showToast('Example loaded — hit Generate!');
+}
+
+// ── PROMPT BUILDER ─────────────────────────────────────────────
+function buildSystemPrompt() {
+  return `You are LearnCraft, an expert pedagogical assistant built for teachers across India. You deeply understand curriculum design, Bloom's Taxonomy, NCF 2023 guidelines, and age-appropriate teaching strategies for diverse Indian classrooms.
+
+CORE RULES — never break these:
+1. Every lesson plan must be immediately usable in a real classroom — no filler, no theory, no placeholder text.
+2. Adapt complexity, vocabulary, and activity types strictly to the grade band:
+   - Grades 1–5: Concrete, story-driven, sensory, play-based
+   - Grades 6–8: Inquiry-based, peer discussion, real-world connections
+   - Grades 9–12: Analytical, debate-worthy, exam-aware, career-linked
+3. Never recommend activities requiring equipment the classroom doesn't have.
+4. Write like a wise senior teacher talking to a colleague — warm, direct, practical.
+5. Generate the ENTIRE lesson plan in the language specified. If Hinglish, write naturally with code-switching as a real teacher would speak.`;
+}
+
+function buildUserPrompt(data) {
+  const dur = parseInt(data.duration);
+  const hookTime = Math.round(dur * 0.15 / 5) * 5;
+  const teachTime = Math.round(dur * 0.40 / 5) * 5;
+  const activityTime = Math.round(dur * 0.30 / 5) * 5;
+
+  let gradeInjection = '';
+  const gradeNum = parseInt(data.grade.replace('Grade ', ''));
+  if (gradeNum <= 5) gradeInjection = 'Use simple sentences. Favour storytelling, rhymes, and physical movement. Every activity must feel like play. Avoid abstract definitions — always show before you name.';
+  else if (gradeNum <= 8) gradeInjection = "Students at this age love to argue and question. Design at least one moment of productive disagreement. Use 'what do YOU think?' often.";
+  else gradeInjection = "These students are exam-aware. After the core lesson, add: 'Exam angle: Here's how this concept typically appears in board exams.'";
+
+  let subjectInjection = '';
+  const subj = data.subject.toLowerCase();
+  if (subj.includes('math')) subjectInjection = 'Start with a phenomenon or number that surprises. Explain mechanism before formula. Use examples from nature, cooking, sports, or local geography.';
+  else if (subj.includes('science')) subjectInjection = 'Lead with a surprising phenomenon. Show the "why it works" before the "what it is". Use locally observable examples.';
+  else if (subj.includes('history') || subj.includes('social')) subjectInjection = 'Open with a human being, not a date. Make historical figures feel real. Connect past events to something visible in India today.';
+  else if (subj.includes('english') || subj.includes('literature') || subj.includes('language')) subjectInjection = 'Prioritise speaking and personal expression. Create at least one moment where students use their own voice. Celebrate linguistic diversity.';
+
+  return `Create a complete lesson plan with these details:
+
+SUBJECT: ${data.subject}
+GRADE: ${data.grade}
+DURATION: ${data.duration}
+LEARNING GOAL: ${data.goal}
+LANGUAGE: ${data.language}
+PRIOR KNOWLEDGE: ${data.prior || 'Not specified'}
+CLASSROOM REALITY: ${data.classroom || 'Standard classroom'}
+
+Grade guidance: ${gradeInjection}
+Subject guidance: ${subjectInjection}
+
+Generate the lesson plan in this EXACT structure with these EXACT emoji headers:
+
+🎯 LESSON OBJECTIVE
+One crisp sentence: "By the end of this lesson, students will be able to [verb] [concept]."
+
+⚡ HOOK [${hookTime} min]
+An attention-grabbing opening — no content delivery yet. Must create curiosity. Format: What the teacher DOES or SAYS, then student response. Must work within the classroom reality described.
+
+📖 TEACHING FLOW [${teachTime} min]
+Numbered step-by-step teaching beats. Include:
+- The single best analogy for this concept (local, relatable)
+- The #1 misconception students will have and exactly how to address it
+- One check-for-understanding moment (write the exact question to ask)
+
+🤝 STUDENT ACTIVITY [${activityTime} min]
+Pair or group work. Write instructions the teacher can read aloud verbatim. Include: Setup → Task → Debrief question.
+
+❓ DISCUSSION QUESTIONS
+Q1 (Recall): [question]
+Q2 (Application): [question]
+Q3 (Opinion/Creative): [question]
+
+📊 EXIT TICKET [5 min]
+3 questions with answer key. Q1: Easy. Q2: Medium. Q3: Stretch.
+
+🏠 EXTENSION TASK
+One optional genuinely interesting task (≤20 min). Not "read pages X–Y."
+
+⚠️ TEACHER WATCH-OUTS
+3 things that commonly derail this specific lesson. For each: what goes wrong → what to do.
+
+Write entirely in ${data.language}. Be specific, practical, warm. This is a real teacher reading this in a real classroom.`;
+}
+
+// ── SECTION PARSER ─────────────────────────────────────────────
+const sectionDefs = [
+  { key: 'objective', emoji: '🎯', title: 'Lesson Objective', icon: '🎯' },
+  { key: 'hook',      emoji: '⚡', title: 'Hook',             icon: '⚡' },
+  { key: 'teaching',  emoji: '📖', title: 'Teaching Flow',    icon: '📖' },
+  { key: 'activity',  emoji: '🤝', title: 'Student Activity', icon: '🤝' },
+  { key: 'discussion',emoji: '❓', title: 'Discussion Questions', icon: '❓' },
+  { key: 'exit',      emoji: '📊', title: 'Exit Ticket',      icon: '📊' },
+  { key: 'extension', emoji: '🏠', title: 'Extension Task',   icon: '🏠' },
+  { key: 'watchouts', emoji: '⚠️', title: 'Teacher Watch-Outs', icon: '⚠️' },
+];
+
+function parseIntoSections(text) {
+  const sections = [];
+  const emojis = sectionDefs.map(s => s.emoji);
+
+  // Split by emoji headers
+  const lines = text.split('\n');
+  let currentSection = null;
+  let currentContent = [];
+
+  for (const line of lines) {
+    let matched = false;
+    for (const def of sectionDefs) {
+      if (line.trim().startsWith(def.emoji)) {
+        if (currentSection) {
+          sections.push({ ...currentSection, content: currentContent.join('\n').trim() });
+        }
+        currentSection = def;
+        // Get duration from header line if present
+        const durMatch = line.match(/\[(\d+\s*min)\]/i);
+        currentSection = { ...def, duration: durMatch ? durMatch[1] : null };
+        currentContent = [];
+        matched = true;
+        break;
+      }
+    }
+    if (!matched && currentSection) {
+      currentContent.push(line);
+    }
+  }
+
+  if (currentSection && currentContent.length) {
+    sections.push({ ...currentSection, content: currentContent.join('\n').trim() });
+  }
+
+  return sections;
+}
+
+// ── GENERATE ───────────────────────────────────────────────────
+let fullText = '';
+let isGenerating = false;
+
+async function generateLesson() {
+  if (isGenerating) return;
+
+  const data = {
+    subject:   document.getElementById('subject').value.trim(),
+    grade:     document.getElementById('grade').value,
+    duration:  document.getElementById('duration').value,
+    language:  document.getElementById('language').value,
+    goal:      document.getElementById('goal').value.trim(),
+    prior:     document.getElementById('prior').value.trim(),
+    classroom: document.getElementById('classroom').value.trim(),
+  };
+
+  // Validate
+  if (!data.subject || !data.grade || !data.duration || !data.goal) {
+    showError('Please fill in Subject, Grade, Duration, and Learning Goal to continue.');
+    return;
+  }
+
+  clearError();
+  isGenerating = true;
+  fullText = '';
+
+  // UI state
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  document.getElementById('btnText').textContent = 'Generating…';
+
+  // Show output section
+  const outputSection = document.getElementById('outputSection');
+  outputSection.classList.add('visible');
+  outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Meta bar
+  document.getElementById('metaBar').innerHTML = `
+    <div class="meta-item"><div class="meta-key">SUBJECT</div><div class="meta-value">${data.subject}</div></div>
+    <div class="meta-item"><div class="meta-key">GRADE</div><div class="meta-value">${data.grade}</div></div>
+    <div class="meta-item"><div class="meta-key">DURATION</div><div class="meta-value">${data.duration}</div></div>
+    <div class="meta-item"><div class="meta-key">LANGUAGE</div><div class="meta-value">${data.language}</div></div>
+  `;
+
+  document.getElementById('outputTitle').textContent = `${data.subject} — ${data.grade}`;
+  document.getElementById('outputBadge').textContent = 'GENERATING';
+  document.getElementById('outputBadge').style.color = 'var(--saffron)';
+  document.getElementById('outputBadge').style.background = 'rgba(244,130,31,0.1)';
+  document.getElementById('outputBadge').style.borderColor = 'rgba(244,130,31,0.3)';
+
+  // Show loading
+  const lessonBody = document.getElementById('lessonBody');
+  lessonBody.innerHTML = `<div class="loading-state">
+    <div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="loading-text">CRAFTING YOUR LESSON…</div>
+  </div>`;
+
+  document.getElementById('actionBar').style.display = 'none';
+  document.getElementById('rawStream').classList.remove('visible');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 3000,
+        stream: true,
+        system: buildSystemPrompt(),
+        messages: [{ role: 'user', content: buildUserPrompt(data) }]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let firstChunk = true;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data_str = line.slice(6).trim();
+          if (data_str === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data_str);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              if (firstChunk) {
+                lessonBody.innerHTML = '';
+                firstChunk = false;
+              }
+              fullText += parsed.delta.text;
+              renderStreaming(fullText, lessonBody);
+            }
+          } catch (e) { /* skip parse errors */ }
+        }
+      }
+    }
+
+    // Final render
+    renderFinal(fullText, lessonBody);
+
+    // Update badge
+    document.getElementById('outputBadge').innerHTML = `<span style="display:flex;align-items:center;gap:6px;"><span style="width:6px;height:6px;background:var(--soft-green);border-radius:50%;display:inline-block;"></span>READY</span>`;
+    document.getElementById('outputBadge').style.color = 'var(--soft-green)';
+    document.getElementById('outputBadge').style.background = 'rgba(82,183,136,0.1)';
+    document.getElementById('outputBadge').style.borderColor = 'rgba(82,183,136,0.3)';
+
+    document.getElementById('actionBar').style.display = 'flex';
+    document.getElementById('rawStream').textContent = fullText;
+
+  } catch (err) {
+    console.error(err);
+    lessonBody.innerHTML = '';
+    showError(`Something went wrong: ${err.message}. Please check your connection and try again.`);
+    document.getElementById('outputSection').classList.remove('visible');
+  } finally {
+    isGenerating = false;
+    btn.disabled = false;
+    document.getElementById('btnText').textContent = 'Generate My Lesson Plan';
+  }
+}
+
+// ── RENDERING ──────────────────────────────────────────────────
+function renderStreaming(text, container) {
+  // Show raw text with cursor while streaming
+  container.innerHTML = `<div style="font-size:15px;line-height:1.8;color:#2D2D2D;white-space:pre-wrap;word-wrap:break-word;">${escHtml(text)}<span class="streaming-cursor"></span></div>`;
+}
+
+function renderFinal(text, container) {
+  const sections = parseIntoSections(text);
+
+  if (sections.length === 0) {
+    // Fallback: render as clean formatted text
+    container.innerHTML = `<div style="font-size:15px;line-height:1.8;color:#2D2D2D;white-space:pre-wrap;word-wrap:break-word;">${escHtml(text)}</div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  sections.forEach((section, idx) => {
+    const el = document.createElement('div');
+    el.className = 'lesson-section';
+    el.style.animationDelay = `${idx * 0.08}s`;
+    el.innerHTML = `
+      <div class="section-header">
+        <div class="section-icon">${section.icon}</div>
+        <div class="section-title-block">
+          <div class="section-title">
+            ${section.title}
+            ${section.duration ? `<span class="section-duration">${section.duration}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="section-content">${escHtml(section.content)}</div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────
+function copyLesson() {
+  if (!fullText) return;
+  navigator.clipboard.writeText(fullText).then(() => showToast('Lesson plan copied!'));
+}
+
+function regenerate() {
+  document.getElementById('outputSection').classList.remove('visible');
+  generateLesson();
+}
+
+function toggleRaw() {
+  const raw = document.getElementById('rawStream');
+  raw.classList.toggle('visible');
+}
+
+// ── UI HELPERS ─────────────────────────────────────────────────
+function showError(msg) {
+  const banner = document.getElementById('errorBanner');
+  banner.textContent = msg;
+  banner.classList.add('visible');
+}
+
+function clearError() {
+  document.getElementById('errorBanner').classList.remove('visible');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// ── ENTER KEY ──────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) generateLesson();
+});
+
+// ── FAQ DATA & ACCORDION ───────────────────────────────────────
+const faqs = [
+  {
+    category: 'USING THE APP',
+    q: 'What are the required fields?',
+    a: 'You need four things to generate a lesson: Subject, Grade, Duration, and Learning Goal. The other fields (Prior Knowledge, Classroom Reality, Language) are optional but they dramatically improve the quality. "Classroom Reality" in particular is the most powerful field — tell us you have 45 students, a chalk board, and no projector, and the output will be built for that classroom, not an imaginary one.'
+  },
+  {
+    category: 'USING THE APP',
+    q: 'How do I use the quick-fill examples?',
+    a: 'Click any of the four coloured pills at the top of the form — Math Fractions, Science Photosynthesis, History 1857, or English Poetry. They instantly populate all fields with a realistic Indian classroom scenario. Perfect for demoing to judges without typing anything. Just click a pill, then hit Generate.'
+  },
+  {
+    category: 'USING THE APP',
+    q: 'What does "Classroom Reality" do?',
+    a: 'This is the secret weapon. When you describe your actual classroom — number of students, available resources, school type, location — LearnCraft adapts every activity, analogy, and resource recommendation to that reality. A rural school with chalk and board gets completely different activities than an urban school with a projector. Try it: generate the same lesson twice, once without this field and once with "42 students, chalk board only, rural Rajasthan" — the difference is striking.'
+  },
+  {
+    category: 'USING THE APP',
+    q: 'Can I generate lessons in Hindi or regional languages?',
+    a: 'Yes — select any language from the dropdown: English, Hindi, Hinglish, Tamil, Telugu, Kannada, Marathi, or Bengali. Hinglish is particularly powerful for Hindi-belt teachers as it mimics the natural code-switching of real classroom language. The entire output — every section — is generated in your chosen language.'
+  },
+  {
+    category: 'USING THE APP',
+    q: 'What are the 8 sections in every lesson plan?',
+    a: '🎯 Lesson Objective — one crisp sentence of what students will DO. ⚡ Hook — a curiosity-first opening, no content yet. 📖 Teaching Flow — step-by-step numbered beats with a key analogy and the #1 misconception to address. 🤝 Student Activity — pair/group work, instructions the teacher can read aloud verbatim. ❓ Discussion Questions — easy, medium, and creative. 📊 Exit Ticket — 3 questions with an answer key. 🏠 Extension Task — a genuinely interesting optional homework. ⚠️ Teacher Watch-Outs — 3 real things that derail this specific lesson and how to handle them.'
+  },
+  {
+    category: 'USING THE APP',
+    q: 'The output is streaming — is that normal?',
+    a: 'Yes, completely normal. LearnCraft streams the lesson plan word by word in real time (just like how ChatGPT displays responses). You\'ll see text appear progressively, then it\'ll snap into the beautiful card layout once generation is complete. The total time is usually 20–40 seconds depending on lesson length.'
+  },
+  {
+    category: 'USING THE APP',
+    q: 'What do Copy, Regenerate, and Raw Text do?',
+    a: '"Copy Lesson Plan" copies the full plain-text version to your clipboard — paste it straight into WhatsApp, Google Docs, or your notes app. "Regenerate" runs the exact same inputs again for a fresh take — useful if the first output missed the mark. "Raw Text" toggles a plain-text view of the full output, useful if you want to see the unformatted content.'
+  },
+  {
+    category: 'ABOUT LEARNCRAFT',
+    q: 'Who is this built for?',
+    a: 'Primary teachers and secondary teachers across India — especially government and low-resource school teachers who spend 2–3 hours per day on lesson planning. LearnCraft is built around the reality of the Indian classroom: large class sizes, limited equipment, multilingual classrooms, and the NCF 2023 curriculum framework. It is not built for Silicon Valley classrooms.'
+  },
+  {
+    category: 'ABOUT LEARNCRAFT',
+    q: 'Is this just ChatGPT with a pretty UI?',
+    a: 'No. The difference is in the prompt architecture. General AI tools give you generic lesson plans written for nobody. LearnCraft uses a deeply crafted system prompt that enforces: grade-band-specific pedagogy (play-based for Grades 1–5, inquiry for 6–8, exam-aware for 9–12), subject-specific teaching philosophy (phenomena-first for Science, human story-first for History, voice-first for Languages), equipment-aware activity design, and multilingual output that reads like a real teacher wrote it — not a translated document.'
+  },
+  {
+    category: 'ABOUT LEARNCRAFT',
+    q: 'What subjects does it support?',
+    a: 'LearnCraft is currently optimised for Science & Mathematics, Social Studies & History, and Languages & Literature across Grades 1–12. These cover the core curriculum for the vast majority of Indian teachers. Each subject has its own pedagogical personality baked into the AI — so a Maths lesson and a History lesson genuinely feel different, not like the same template with different words.'
+  },
+  {
+    category: 'ABOUT LEARNCRAFT',
+    q: 'Does the lesson plan follow NCF 2023 guidelines?',
+    a: 'Yes — the system is designed with NCF 2023 principles in mind: competency-based learning (objectives are framed as things students will DO, not just know), experiential and activity-based learning, assessment-for-learning (exit tickets over marks), and multilingual approaches. The output isn\'t a checkbox exercise — it naturally follows these principles because they\'re embedded in how the prompt is structured.'
+  },
+  {
+    category: 'TECHNICAL',
+    q: 'What AI powers this?',
+    a: 'LearnCraft is powered by Claude (built by Anthropic) — one of the most capable and safety-focused large language models available. The quality of output comes from a carefully engineered prompt system, not just the raw model. The same model with a generic prompt gives generic output; the LearnCraft prompt architecture is what makes the difference.'
+  },
+  {
+    category: 'TECHNICAL',
+    q: 'Is my data stored anywhere?',
+    a: 'No data is stored by LearnCraft. Your inputs are sent directly to the Claude API to generate the lesson plan, and that\'s it. Nothing is logged, saved, or used for training. Each session is completely fresh.'
+  },
+];
+
+// Group by category
+function buildFAQ() {
+  const container = document.getElementById('faqList');
+  const categories = [...new Set(faqs.map(f => f.category))];
+
+  categories.forEach(cat => {
+    // Category label
+    const catEl = document.createElement('div');
+    catEl.style.cssText = 'font-family:"Space Mono",monospace;font-size:9px;letter-spacing:3px;color:var(--muted);padding:20px 0 8px;';
+    catEl.textContent = cat;
+    container.appendChild(catEl);
+
+    faqs.filter(f => f.category === cat).forEach((faq, idx) => {
+      const item = document.createElement('div');
+      item.style.cssText = 'background:#1A1A1A;margin-bottom:2px;overflow:hidden;';
+
+      const btn = document.createElement('button');
+      btn.style.cssText = 'width:100%;padding:24px 28px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;';
+
+      const qText = document.createElement('span');
+      qText.style.cssText = 'font-family:"DM Sans",sans-serif;font-size:16px;font-weight:500;color:var(--chalk);line-height:1.4;';
+      qText.textContent = faq.q;
+
+      const arrow = document.createElement('span');
+      arrow.style.cssText = 'color:var(--saffron);font-size:18px;flex-shrink:0;transition:transform 0.3s;display:inline-block;';
+      arrow.textContent = '+';
+
+      btn.appendChild(qText);
+      btn.appendChild(arrow);
+
+      const answer = document.createElement('div');
+      answer.style.cssText = 'max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.16,1,0.3,1);';
+
+      const answerInner = document.createElement('div');
+      answerInner.style.cssText = 'padding:0 28px 28px;font-size:14px;line-height:1.8;color:rgba(245,240,232,0.6);border-top:1px solid rgba(245,240,232,0.06);padding-top:20px;';
+      answerInner.textContent = faq.a;
+
+      answer.appendChild(answerInner);
+      item.appendChild(btn);
+      item.appendChild(answer);
+      container.appendChild(item);
+
+      let open = false;
+      btn.addEventListener('click', () => {
+        open = !open;
+        if (open) {
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+          arrow.style.transform = 'rotate(45deg)';
+          arrow.style.color = 'var(--soft-green)';
+          btn.style.background = 'rgba(255,255,255,0.02)';
+        } else {
+          answer.style.maxHeight = '0';
+          arrow.style.transform = 'rotate(0deg)';
+          arrow.style.color = 'var(--saffron)';
+          btn.style.background = 'none';
+        }
+      });
+
+      // Hover
+      btn.addEventListener('mouseenter', () => { if (!open) btn.style.background = 'rgba(255,255,255,0.02)'; });
+      btn.addEventListener('mouseleave', () => { if (!open) btn.style.background = 'none'; });
+    });
+  });
+}
+
+buildFAQ();
+</script>
+</body>
+</html>
